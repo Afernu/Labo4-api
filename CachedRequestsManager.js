@@ -3,26 +3,60 @@ import * as serverVariables from "./serverVariables.js";
 import { log } from "./log.js";
 let repositoryCachesExpirationTime = serverVariables.get("main.repository.CacheExpirationTime");
 
-// Repository file data models cache
 globalThis.repositoryCaches = [];
 
 export default class CachedRequestsManager {
     static add(url, content, ETag = "") {
-        /* mise en cache */ 
+        cache.push({
+            url,
+            content,
+            ETag,
+        });
+        console.log("Ajout dans la cache avec l'url associé: " + url);
     }
+
     static find(url) {
-        /* retourne la cache associée à l'url */ 
+        return cache.find((entry) => entry.url === url);
     }
+
     static clear(url) {
-        /* efface la cache associée à l’url */ 
+        const indexToDelete = [];
+        for (let i = 0; i < cache.length; i++) {
+            const entry = cache[i];
+            if (entry.url.toLowerCase().indexOf(url.toLowerCase()) > -1) {
+                indexToDelete.push(i);
+                console.log("Retrait de cache avec l'URL associé: " + entry.url);
+            }
+        }
+
+        for (const index of indexToDelete.reverse()) {
+            cache.splice(index, 1);
+        }
     }
-    static flushExpired(url) {
-        /* efface les caches expirées */ 
+
+    static flushExpired() {
+        const now = Date.now() / 1000;
+        const expiredCaches = cache.filter((entry) => entry.Expire_Time < now);
+
+        for (const entry of expiredCaches) {
+            console.log("Retrait de cache expirée avec l'URL associé: " + entry.url);
+            const index = cache.indexOf(entry);
+            if (index !== -1) {
+                cache.splice(index, 1);
+            }
+        }
     }
+
     static get(HttpContext) {
-        /*
-        Chercher la cache correspondant à l'url de la requête. Si trouvé,
-        Envoyer la réponse avec 
-        HttpContext.response.JSON( paylod, ETag, true /* from cache */
+        const url = HttpContext.request.url;
+        const cacheEntry = CachedRequestsManager.find(url);
+
+        if (cacheEntry) {
+            // Cache trouvé, renvoyer la réponse avec les données de la cache
+            HttpContext.response.JSON(cacheEntry.content, cacheEntry.ETag, true /* from cache */);
+        } else {
+            // Cache non trouvé, effectuer la requête normalement
+            // ...
+        }
     }
 }
