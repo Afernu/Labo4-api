@@ -36,7 +36,7 @@ export default class RepositoryCachesManager {
                     if (cache.model == model) {
                         // renew cache
                         cache.Expire_Time = utilities.nowInSeconds() + repositoryCachesExpirationTime;
-                        console.log("File data of " + model + ".json retreived from respository cache");
+                        console.log("File data of " + model + ".json retrieved from respository cache");
                         return cache.data;
                     }
                 }

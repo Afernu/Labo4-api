@@ -21,12 +21,11 @@ export default class CachedRequestsManager {
 
     static clear(url) {
         const indexToDelete = [];
-        for (let i = 0; i < cache.length; i++) {
-            const entry = cache[i];
-            if (entry.url.toLowerCase().indexOf(url.toLowerCase()) > -1) {
-                indexToDelete.push(i);
-                console.log("Retrait de cache avec l'URL associé: " + entry.url);
-            }
+        for (let endpoint of CachedRequests) {
+            // target all entries related to the same APIendpoint url base
+            if (endpoint.url.toLowerCase().indexOf(url.toLowerCase()) > -1)
+                indexToDelete.push(index);
+            index++;
         }
 
         for (const index of indexToDelete.reverse()) {
