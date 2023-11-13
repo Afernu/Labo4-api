@@ -16,7 +16,7 @@ export default class MiddlewaresPipeline {
     handleHttpRequest(HttpContext) {
         for (let middleware of this.middlewares) {
             if (middleware(HttpContext)) 
-                return true;
+               return true;
         }
         return false;
     }
